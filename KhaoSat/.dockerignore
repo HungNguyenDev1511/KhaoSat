@@ -1,0 +1,10 @@
+bin/
+obj/
+out/
+.vs/
+.git/
+.gitignore
+*.db
+*.db-journal
+Dockerfile
+.dockerignore

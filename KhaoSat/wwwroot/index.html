@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Khảo Sát</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Khảo Sát <span>Pro</span></h1>
+            <nav id="main-nav">
+                <button onclick="showView('home')" class="nav-btn active">Trang Chủ</button>
+                <button onclick="showView('admin')" class="nav-btn">Quản Lý</button>
+            </nav>
+        </header>
+
+        <main id="app-content">
+            <!-- Home View: List Surveys to take -->
+            <section id="home-view" class="view">
+                <div class="section-header">
+                    <h2>Danh Sách Khảo Sát</h2>
+                    <p>Chọn một khảo sát bên dưới để thực hiện</p>
+                </div>
+                <div id="survey-list" class="grid-list">
+                    <!-- Dynamic Loading -->
+                </div>
+            </section>
+
+            <!-- Survey Detail / Taking View -->
+            <section id="take-view" class="view hidden">
+                <button onclick="showView('home')" class="back-btn">&larr; Quay lại</button>
+                <div id="survey-form-container" class="form-card">
+                    <!-- Dynamic Loading -->
+                </div>
+            </section>
+
+            <!-- Admin View: Create/Edit/Delete -->
+            <section id="admin-view" class="view hidden">
+                <div class="section-header">
+                    <h2>Quản Lý Khảo Sát</h2>
+                    <button class="primary-btn" onclick="openCreateModal()">+ Thêm Mới</button>
+                </div>
+                <div id="admin-survey-list" class="grid-list">
+                    <!-- Dynamic Loading -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Modals -->
+        <div id="modal-container" class="modal-overlay hidden">
+            <div class="modal-content glass">
+                <div class="modal-header">
+                    <h3 id="modal-title">Thêm Khảo Sát</h3>
+                    <button class="close-btn" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="survey-editor-form">
+                        <input type="hidden" id="edit-survey-id">
+                        <div class="input-group">
+                            <label>Tiêu đề</label>
+                            <input type="text" id="survey-title" required placeholder="Nhập tiêu đề...">
+                        </div>
+                        <div class="input-group">
+                            <label>Mô tả</label>
+                            <textarea id="survey-description" placeholder="Nhập mô tả khảo sát..."></textarea>
+                        </div>
+                        <div id="questions-builder">
+                            <h4>Câu hỏi</h4>
+                            <div id="questions-list"></div>
+                            <button type="button" class="secondary-btn" onclick="addQuestionEditor()">+ Thêm câu hỏi</button>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="primary-btn">Lưu Lại</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification system -->
+    <div id="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

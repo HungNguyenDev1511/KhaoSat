@@ -1,0 +1,311 @@
+/* Modern Design System */
+:root {
+    --primary: #6366f1;
+    --primary-hover: #4f46e5;
+    --secondary: #10b981;
+    --secondary-hover: #059669;
+    --danger: #ef4444;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --bg: #f8fafc;
+    --card-bg: rgba(255, 255, 255, 0.85);
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --border: #e2e8f0;
+    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --radius: 16px;
+    --font: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font);
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 40px;
+}
+
+.app-container {
+    max-width: 600px; /* Mobile focused narrow container */
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+}
+
+header h1 span {
+    font-weight: 300;
+}
+
+/* Nav styles */
+#main-nav {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    padding: 6px;
+    border-radius: 50px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+}
+
+.nav-btn {
+    border: none;
+    background: transparent;
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.nav-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+/* Section transitions */
+.view {
+    animation: fadeIn 0.4s ease-out;
+}
+
+.hidden {
+    display: none !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Grid & Cards */
+.grid-list {
+    display: grid;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    transition: transform 0.2s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.card:active {
+    transform: scale(0.98);
+}
+
+.card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+}
+
+.card p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* Buttons */
+.primary-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.4);
+}
+
+.primary-btn:hover {
+    background: var(--primary-hover);
+}
+
+.secondary-btn {
+    background: #f1f5f9;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.danger-btn {
+    background: #fee2e2;
+    color: var(--danger);
+    border: 1px solid #fca5a5;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+/* Form controls */
+.form-card {
+    background: white;
+    padding: 30px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.input-group input, .input-group textarea, .input-group select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    font-family: inherit;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.input-group input:focus {
+    border-color: var(--primary);
+}
+
+/* Question Editor Styles */
+.question-item {
+    background: #f8fafc;
+    border: 1px dashed var(--border);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 25px;
+}
+
+.glass {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* Mobile survey display */
+.q-card {
+    margin-bottom: 25px;
+}
+
+.q-label {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.rating-group {
+    display: flex;
+    justify-content: space-between;
+    gap: 5px;
+}
+
+.rating-btn {
+    flex: 1;
+    padding: 12px;
+    border: 1.5px solid var(--border);
+    background: white;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.rating-btn.selected {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* Toast notifications */
+#toast-container {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+}
+
+.toast {
+    background: #334155;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 30px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}

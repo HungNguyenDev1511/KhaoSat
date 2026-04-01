@@ -1,0 +1,6 @@
+wwwroot\index.html
+wwwroot\styles.css
+wwwroot\app.js
+D:\KhaoSat\KhaoSat\wwwroot\app.js
+D:\KhaoSat\KhaoSat\wwwroot\index.html
+D:\KhaoSat\KhaoSat\wwwroot\styles.css
