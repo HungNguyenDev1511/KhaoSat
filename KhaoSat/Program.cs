@@ -33,7 +33,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
-app.UseStaticFiles(); // Allow serving the web view files
+
+app.UseDefaultFiles(); // Cấu hình để tự động nhận diện index.html là trang chủ
+app.UseStaticFiles(); // Cho phép phục vụ các file tĩnh trong wwwroot
 app.UseAuthorization();
 
 app.MapControllers();
