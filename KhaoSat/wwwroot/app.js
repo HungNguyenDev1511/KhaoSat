@@ -1,28 +1,37 @@
 const API_BASE = '/api/surveys';
 let currentSurveys = [];
 let currentQuestions = [];
+let surveyModal = null;
+let toastElement = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Bootstrap components
+    surveyModal = new bootstrap.Modal(document.getElementById('surveyModal'));
+    toastElement = new bootstrap.Toast(document.getElementById('liveToast'));
+    
+    // Initial fetch
     fetchSurveys();
     
-    // Form handling
+    // Attach form handler
     document.getElementById('survey-editor-form').addEventListener('submit', handleSaveSurvey);
 });
 
-// Navigation
+// View Navigation
 function showView(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
     document.getElementById(`${viewId}-view`).classList.remove('hidden');
     
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.getAttribute('onclick').includes(viewId));
+    // Update Navbar active state
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+        if (link.id === `nav-${viewId}`) link.classList.add('active');
     });
 
     if (viewId === 'home') fetchSurveys();
     if (viewId === 'admin') fetchAdminSurveys();
 }
 
-// Fetch Surveys
+// Data Fetching
 async function fetchSurveys() {
     try {
         const response = await fetch(API_BASE);
@@ -36,15 +45,21 @@ async function fetchSurveys() {
 function renderSurveyList() {
     const list = document.getElementById('survey-list');
     if (currentSurveys.length === 0) {
-        list.innerHTML = '<p class="text-muted">Chưa có khảo sát nào.</p>';
+        list.innerHTML = '<div class="col-12 text-center py-5"><p class="text-secondary">Chưa có khảo sát nào được tạo.</p></div>';
         return;
     }
+    
     list.innerHTML = currentSurveys.map(s => `
-        <div class="card" onclick="takeSurvey(${s.id})">
-            <h3>${s.title}</h3>
-            <p>${s.description}</p>
-            <div style="margin-top: 15px; font-size: 0.8rem; color: var(--primary); font-weight: 600;">
-                Bắt đầu khảo sát &rarr;
+        <div class="col-md-6 col-lg-4">
+            <div class="survey-card" onclick="takeSurvey(${s.id})">
+                <div class="card-icon">
+                    <i class="bi bi-file-earmark-text"></i>
+                </div>
+                <h3 class="h5 fw-bold mb-2">${s.title}</h3>
+                <p class="text-secondary small mb-4">${s.description || 'Chưa có mô tả chi tiết cho khảo sát này.'}</p>
+                <div class="d-flex align-items-center text-primary fw-semibold small">
+                    Bắt đầu ngay <i class="bi bi-arrow-right ms-2"></i>
+                </div>
             </div>
         </div>
     `).join('');
@@ -64,22 +79,28 @@ async function fetchAdminSurveys() {
 function renderAdminList() {
     const list = document.getElementById('admin-survey-list');
     list.innerHTML = currentSurveys.map(s => `
-        <div class="card" style="cursor: default;">
-            <div style="display: flex; justify-content: space-between; align-items: start;">
-                <div>
-                    <h3>${s.title}</h3>
-                    <p>${s.description}</p>
+        <div class="col-12">
+            <div class="p-3 bg-white border-0 shadow-sm rounded-3 d-flex justify-content-between align-items-center">
+                <div class="ps-2">
+                    <h5 class="fw-bold mb-0">${s.title}</h5>
+                    <span class="badge bg-light text-secondary rounded-pill">${s.questions.length || 0} câu hỏi</span>
                 </div>
-                <div style="display: flex; gap: 5px;">
-                    <button class="secondary-btn" onclick="openEditModal(${s.id})">Sửa</button>
-                    <button class="danger-btn" onclick="deleteSurvey(${s.id})">Xóa</button>
+                <div class="dropdown">
+                    <button class="btn btn-light btn-sm rounded-circle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
+                        <li><a class="dropdown-item" href="#" onclick="openEditModal(${s.id})"><i class="bi bi-pencil me-2"></i>Chỉnh sửa</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteSurvey(${s.id})"><i class="bi bi-trash me-2"></i>Xóa</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
     `).join('');
 }
 
-// Take Survey
+// Taking Survey UI
 async function takeSurvey(id) {
     const survey = currentSurveys.find(s => s.id === id);
     if (!survey) return;
@@ -87,34 +108,39 @@ async function takeSurvey(id) {
     showView('take');
     const container = document.getElementById('survey-form-container');
     container.innerHTML = `
-        <h2 style="margin-bottom: 10px;">${survey.title}</h2>
-        <p class="text-muted" style="margin-bottom: 25px;">${survey.description}</p>
-        <form id="submission-form">
-            <div class="input-group">
-                <label>Họ và Tên của bạn</label>
-                <input type="text" id="submitter-name" placeholder="Vui lòng nhập tên..." required>
-            </div>
-            ${survey.questions.map((q, idx) => `
-                <div class="q-card">
-                    <label class="q-label">${idx + 1}. ${q.text}</label>
-                    ${renderQuestionInput(q)}
+        <div class="p-4 p-md-5 bg-gradient-header text-white" style="background: linear-gradient(135deg, #4f46e5, #d946ef);">
+            <h2 class="fw-bold mb-2 h3">${survey.title}</h2>
+            <p class="mb-0 opacity-75">${survey.description}</p>
+        </div>
+        <div class="p-4 p-md-5 bg-white">
+            <form id="submission-form">
+                <div class="mb-5">
+                    <label class="form-label fw-bold small text-uppercase text-secondary">Thông tin người tham gia</label>
+                    <input type="text" id="submitter-name" class="form-control form-control-lg bg-light border-0 px-4" placeholder="Nhập họ và tên của bạn..." required>
                 </div>
-            `).join('')}
-            <button type="submit" class="primary-btn" style="width: 100%;">Gửi Kết Quả</button>
-        </form>
+                ${survey.questions.map((q, idx) => `
+                    <div class="mb-5">
+                        <label class="form-label fw-bold mb-3 h5">${idx + 1}. ${q.text}</label>
+                        ${renderModernQuestionInput(q)}
+                    </div>
+                `).join('')}
+                <hr class="my-5 opacity-10">
+                <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow w-100">Gửi Kết Quả Khảo Sát</button>
+            </form>
+        </div>
     `;
 
     document.getElementById('submission-form').onsubmit = (e) => handleSubmitResponse(e, id, survey.questions);
 }
 
-function renderQuestionInput(q) {
+function renderModernQuestionInput(q) {
     if (q.type === 'text') {
-        return `<input type="text" name="q-${q.id}" class="survey-input" required placeholder="Nhập câu trả lời...">`;
+        return `<textarea name="q-${q.id}" class="form-control border-0 bg-light px-4 py-3" rows="3" required placeholder="Câu trả lời của bạn..."></textarea>`;
     } else if (q.type === 'rating') {
         return `
-            <div class="rating-group" id="rating-${q.id}">
+            <div class="rating-group-modern" id="rating-${q.id}">
                 ${[1, 2, 3, 4, 5].map(v => `
-                    <div class="rating-btn" onclick="selectRating(${q.id}, ${v})">${v}</div>
+                    <div class="rating-option" onclick="selectRating(${q.id}, ${v})">${v}</div>
                 `).join('')}
                 <input type="hidden" name="q-${q.id}" id="input-${q.id}" required>
             </div>
@@ -122,11 +148,15 @@ function renderQuestionInput(q) {
     } else {
         const ops = (q.options || "Lựa chọn 1|Lựa chọn 2").split('|');
         return `
-            <div class="input-group">
-                <select name="q-${q.id}" class="survey-input" required>
-                    <option value="">-- Chọn một --</option>
-                    ${ops.map(o => `<option value="${o}">${o}</option>`).join('')}
-                </select>
+            <div class="row g-3">
+                ${ops.map((o, idx) => `
+                    <div class="col-12">
+                        <input type="radio" class="btn-check" name="q-${q.id}" id="q-${q.id}-${idx}" value="${o}" required autocomplete="off">
+                        <label class="btn btn-outline-light text-dark text-start border-0 bg-light w-100 px-4 py-3 rounded-3" for="q-${q.id}-${idx}">
+                            <i class="bi bi-circle me-2 text-secondary opacity-50"></i> ${o}
+                        </label>
+                    </div>
+                `).join('')}
             </div>
         `;
     }
@@ -134,37 +164,36 @@ function renderQuestionInput(q) {
 
 function selectRating(qid, val) {
     const parent = document.getElementById(`rating-${qid}`);
-    parent.querySelectorAll('.rating-btn').forEach(btn => {
-        btn.classList.toggle('selected', parseInt(btn.innerText) === val);
+    parent.querySelectorAll('.rating-option').forEach(opt => {
+        opt.classList.toggle('active', parseInt(opt.innerText) === val);
     });
     document.getElementById(`input-${qid}`).value = val;
 }
 
-// Submit Response
+// Submit logic
 async function handleSubmitResponse(e, surveyId, questions) {
     e.preventDefault();
     const submitterName = document.getElementById('submitter-name').value;
     const answers = questions.map(q => {
-        const input = document.querySelector(`[name="q-${q.id}"]`);
-        return {
-            questionId: q.id,
-            value: input.value
-        };
+        let val;
+        if (q.type === 'choice') {
+            const checked = document.querySelector(`input[name="q-${q.id}"]:checked`);
+            val = checked ? checked.value : '';
+        } else {
+            val = document.querySelector(`[name="q-${q.id}"]`).value;
+        }
+        return { questionId: q.id, value: val };
     });
 
     try {
         const res = await fetch(`${API_BASE}/${surveyId}/responses`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                surveyId,
-                submitterName,
-                answers
-            })
+            body: JSON.stringify({ surveyId, submitterName, answers })
         });
 
         if (res.ok) {
-            showToast('Cảm ơn bạn đã tham gia khảo sát!');
+            showToast('🎉 Cảm ơn bạn! Kết quả đã được ghi lại.');
             showView('home');
         } else {
             showToast('Lỗi khi gửi kết quả!');
@@ -174,15 +203,15 @@ async function handleSubmitResponse(e, surveyId, questions) {
     }
 }
 
-// Modal & CRUD Operations
+// Modal CRUD
 function openCreateModal() {
     document.getElementById('modal-title').innerText = 'Thêm Khảo Sát Mới';
     document.getElementById('survey-editor-form').reset();
     document.getElementById('edit-survey-id').value = '';
     document.getElementById('questions-list').innerHTML = '';
     currentQuestions = [];
-    addQuestionEditor(); // Start with 1 question
-    document.getElementById('modal-container').classList.remove('hidden');
+    addQuestionEditor(); 
+    surveyModal.show();
 }
 
 function openEditModal(id) {
@@ -194,16 +223,11 @@ function openEditModal(id) {
     document.getElementById('survey-title').value = survey.title;
     document.getElementById('survey-description').value = survey.description;
     
-    const list = document.getElementById('questions-list');
-    list.innerHTML = '';
+    document.getElementById('questions-list').innerHTML = '';
     currentQuestions = [...survey.questions];
     currentQuestions.forEach((q, i) => addQuestionToUI(q, i));
     
-    document.getElementById('modal-container').classList.remove('hidden');
-}
-
-function closeModal() {
-    document.getElementById('modal-container').classList.add('hidden');
+    surveyModal.show();
 }
 
 function addQuestionEditor() {
@@ -215,26 +239,33 @@ function addQuestionEditor() {
 function addQuestionToUI(q, index) {
     const list = document.getElementById('questions-list');
     const div = document.createElement('div');
-    div.className = 'question-item';
+    div.className = 'question-item-editor';
     div.innerHTML = `
-        <div class="input-group">
-            <label>Nội dung câu hỏi</label>
-            <input type="text" onchange="updateQText(${index}, this.value)" value="${q.text}" required>
+        <div class="row g-3">
+            <div class="col-12">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-0 fw-bold text-primary">#${index+1}</span>
+                    <input type="text" class="form-control border-0 bg-light" onchange="updateQText(${index}, this.value)" value="${q.text}" placeholder="Nhập câu hỏi..." required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <select class="form-select border-0 bg-light" onchange="updateQType(${index}, this.value)">
+                    <option value="text" ${q.type === 'text' ? 'selected' : ''}>Nhập văn bản</option>
+                    <option value="rating" ${q.type === 'rating' ? 'selected' : ''}>Đánh giá (1-5)</option>
+                    <option value="choice" ${q.type === 'choice' ? 'selected' : ''}>Trắc nghiệm</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <input type="text" placeholder="Gắn nhãn: Tốt|Khá|Trung bình" onchange="updateQOptions(${index}, this.value)" 
+                   value="${q.options || ''}" style="display: ${q.type === 'choice' ? 'block' : 'none'};" 
+                   id="options-input-${index}" class="form-control border-0 bg-light">
+            </div>
+            <div class="col-12 text-end">
+                <button type="button" class="btn btn-link link-danger text-decoration-none p-0 small" onclick="removeQuestion(${index})">
+                    <i class="bi bi-trash3 me-1"></i> Xóa câu hỏi
+                </button>
+            </div>
         </div>
-        <div class="input-group">
-            <label>Loại câu hỏi</label>
-            <select onchange="updateQType(${index}, this.value)">
-                <option value="text" ${q.type === 'text' ? 'selected' : ''}>Nhập văn bản</option>
-                <option value="rating" ${q.type === 'rating' ? 'selected' : ''}>Đánh giá (1-5)</option>
-                <option value="choice" ${q.type === 'choice' ? 'selected' : ''}>Trắc nghiệm</option>
-            </select>
-        </div>
-        <div id="options-hint-${index}" class="text-muted" style="font-size: 0.8rem; display: ${q.type === 'choice' ? 'block' : 'none'};">
-            Dùng dấu | để ngăn cách các lựa chọn. VD: Tốt|Khá|Trung bình
-        </div>
-        <input type="text" placeholder="Lựa chọn 1|Lựa chọn 2" onchange="updateQOptions(${index}, this.value)" 
-               value="${q.options || ''}" style="display: ${q.type === 'choice' ? 'block' : 'none'};" id="options-input-${index}" class="survey-input">
-        <button type="button" class="danger-btn" style="margin-top: 10px;" onclick="removeQuestion(${index})">Xóa câu hỏi</button>
     `;
     list.appendChild(div);
 }
@@ -243,7 +274,6 @@ function updateQText(idx, val) { currentQuestions[idx].text = val; }
 function updateQType(idx, val) { 
     currentQuestions[idx].type = val; 
     document.getElementById(`options-input-${idx}`).style.display = val === 'choice' ? 'block' : 'none';
-    document.getElementById(`options-hint-${idx}`).style.display = val === 'choice' ? 'block' : 'none';
 }
 function updateQOptions(idx, val) { currentQuestions[idx].options = val; }
 
@@ -275,11 +305,9 @@ async function handleSaveSurvey(e) {
         });
 
         if (res.ok) {
-            showToast('Lưu khảo sát thành công!');
-            closeModal();
+            showToast('✨ Thành công! Khảo sát đã được lưu.');
+            surveyModal.hide();
             fetchAdminSurveys();
-        } else {
-            showToast('Lỗi khi lưu khảo sát!');
         }
     } catch (err) {
         showToast('Lỗi: ' + err.message);
@@ -287,7 +315,7 @@ async function handleSaveSurvey(e) {
 }
 
 async function deleteSurvey(id) {
-    if (!confirm('Bạn có chắc chắn muốn xóa khảo sát này?')) return;
+    if (!confirm('Bạn có chắc chắn muốn xóa không?')) return;
     try {
         const res = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
         if (res.ok) {
@@ -300,10 +328,6 @@ async function deleteSurvey(id) {
 }
 
 function showToast(msg) {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.innerText = msg;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
+    document.getElementById('toast-message').innerText = msg;
+    toastElement.show();
 }
