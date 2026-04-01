@@ -41,6 +41,8 @@ app.UseDefaultFiles(new DefaultFilesOptions
 app.UseStaticFiles(staticFileOptions);
 app.UseAuthorization();
 
+app.MapGet("/", () => Results.Ok(new { message = "KhaoSat API is running", apiDocs = "/openapi/v1.json" }));
+
 app.MapControllers();
 
 // Ensure database is created
