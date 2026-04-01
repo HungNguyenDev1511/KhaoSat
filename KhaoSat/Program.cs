@@ -32,7 +32,13 @@ if (app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 app.UseCors("AllowAll");
-app.UseStaticFiles(); // Allow serving the web view files
+// Configure static files with default file
+var staticFileOptions = new StaticFileOptions();
+app.UseDefaultFiles(new DefaultFilesOptions
+{
+    DefaultFileNames = new List<string> { "index.html" }
+});
+app.UseStaticFiles(staticFileOptions);
 app.UseAuthorization();
 
 app.MapControllers();
