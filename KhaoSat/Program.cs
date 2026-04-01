@@ -29,9 +29,8 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseHttpsRedirection();
 }
-
-app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseStaticFiles(); // Allow serving the web view files
 app.UseAuthorization();
