@@ -35,6 +35,8 @@ app.UseCors("AllowAll");
 app.UseStaticFiles(); // Allow serving the web view files
 app.UseAuthorization();
 
+app.MapGet("/", () => Results.Ok(new { message = "KhaoSat API is running", apiDocs = "/openapi/v1.json" }));
+
 app.MapControllers();
 
 // Ensure database is created
