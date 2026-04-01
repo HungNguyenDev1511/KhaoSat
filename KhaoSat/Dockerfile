@@ -3,11 +3,11 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build-env
 WORKDIR /app
 
 # Copy csproj and restore
-COPY *.csproj ./
+COPY KhaoSat/*.csproj ./
 RUN dotnet restore
 
 # Copy everything else and build
-COPY . ./
+COPY KhaoSat/ ./
 RUN dotnet publish -c Release -o out
 
 # Use runtime image
