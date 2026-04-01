@@ -5,14 +5,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 // Register DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
     options.UseSqlite("Data Source=KhaoSat.db"));
 
-// Enable CORS for frontend
+// Enable CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
@@ -29,15 +28,14 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.UseHttpsRedirection();
 }
+
+app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 
-app.UseDefaultFiles(); // Cấu hình để tự động nhận diện index.html là trang chủ
-app.UseStaticFiles(); // Cho phép phục vụ các file tĩnh trong wwwroot
+app.UseDefaultFiles(); 
+app.UseStaticFiles(); 
 app.UseAuthorization();
-
-app.MapGet("/", () => Results.Ok(new { message = "KhaoSat API is running", apiDocs = "/openapi/v1.json" }));
 
 app.MapControllers();
 
